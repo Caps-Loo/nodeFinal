@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Bot Clevio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background-gradient: linear-gradient(135deg, #2c2c2c, #1a1a1a);
+            --text-color: #e0e0e0;
+            --header-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            --container-bg: rgba(50, 50, 50, 0.8);
+            --container-border: rgba(255, 255, 255, 0.1);
+            --button-bg: #6c757d; 
+            --button-hover-bg: #5a6268;
+            --user-message-bg: #555555; /* Abu-abu lebih gelap */
+            --bot-message-bg: #3a3a3a; /* Abu-abu gelap */
+            --header-background: #3a3a3a; /* Warna latar belakang header untuk tema gelap */
+            --header-text-color: #e0e0e0; /* Warna teks header untuk tema gelap */
+        }
+
+        .light-theme {
+            /* Light Theme Variables */
+            --background-gradient: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            --text-color: #333333;
+            --header-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            --container-bg: rgba(255, 255, 255, 0.9);
+            --container-border: rgba(0, 0, 0, 0.1);
+            --button-bg: #6c757d; /* Abu-abu tua */
+            --button-hover-bg: #5a6268;
+            --user-message-bg: #dddddd; /* Abu-abu terang */
+            --bot-message-bg: #ffffff; /* Abu-abu terang */
+            --header-background: #f0f0f0; /* Warna latar belakang header untuk tema terang */
+            --header-text-color: #333333; /* Warna teks header untuk tema terang */
+        }
+
+        /* Reset Margin dan Padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Latar Belakang Halaman */
+        body {
+            background: var(--background-gradient);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            transition: background 0.3s ease, color 0.3s ease;
+            position: relative;
+        }
+
+        /* Styling Header */
+        h1 {
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5rem;
+            text-shadow: var(--header-shadow);
+            transition: text-shadow 0.3s ease;
+        }
+
+        /* Container Chatbot */
+        .chatbot-container {
+            background-color: var(--container-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--container-border);
+            max-width: 90%;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            transition: background-color 0.3s ease, border 0.3s ease;
+        }
+
+        /* Toggle Switch Styling */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--button-bg);
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--button-bg);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "🌙";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+            font-size: 18px;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            content: "☀️";
+        }
+        
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .chatbot-container {
+                padding: 15px;
+            }
+            .switch {
+                width: 50px;
+                height: 28px;
+            }
+            .slider::after {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle">
+        <label class="switch">
+            <input type="checkbox" id="theme-toggle-checkbox">
+            <span class="slider"></span>
+        </label>
+    </div>
+    <h1>Selamat Datang di AI Bot Clevio</h1>
+    <div class="chatbot-container" id="chatbot-container">
+        <flowise-fullchatbot></flowise-fullchatbot>
+    </div>
+    <script type="module">
+        import Chatbot from "https://cdn.jsdelivr.net/npm/flowise-embed/dist/web.js"
+
+        // Tema untuk Gelap dan Te
+        const darkTheme = {
+            chatWindow: {
+                showTitle: true,
+                title: 'High Privacy AI Bot | Developed by Raihan',
+                titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
+                showAgentMessages: true,
+                welcomeMessage: 'Selamat datang di AI Bot Clevio',
+                errorMessage: 'Maaf, terjadi kesalahan. Silakan coba lagi.',
+                backgroundColor: "#2c2c2c",
+                backgroundImage: '',
+                height: 630,
+                width: '100%',
+                maxWidth: 1535,
+                fontSize: 16,
+                starterPromptFontSize: 15,
+                clearChatOnReload: false,
+                botMessage: {
+                    backgroundColor: "#3a3a3a",
+                    textColor: "#e0e0e0",
+                    showAvatar: true,
+                    avatarSrc: "https://img.icons8.com/emoji/48/000000/robot-emoji.png", /* Ikon robot */
+                    borderRadius: "15px",
+                    padding: "10px 15px",
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                },
+                userMessage: {
+                    backgroundColor: "#555555", /* Abu-abu gelap */
+                    textColor: "#ffffff",
+                    showAvatar: true,
+                    avatarSrc: "https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png",
+                    borderRadius: "15px",
+                    padding: "10px 15px",
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                },
+                textInput: {
+                    placeholder: 'Silahkan bertanya apapun',
+                    backgroundColor: '#3a3a3a',
+                    textColor: '#ffffff',
+                    sendButtonColor: '#ffffff', /* Sesuaikan dengan userMessage */
+                    sendButtonHoverColor: '#444444',
+                    autoFocus: true,
+                    sendMessageSound: true,
+                    receiveMessageSound: true,
+                    borderRadius: "25px",
+                    padding: "10px 20px",
+                    fontSize: "16px",
+                },
+                feedback: {
+                    color: '#ffffff',
+                    backgroundColor: '#555555', /* Sesuaikan dengan userMessage */
+                    borderRadius: "20px",
+                    padding: "8px 16px",
+                    fontSize: "14px",
+                },
+                headerBackgroundColor: "#3a3a3a", /* Warna latar belakang header untuk tema gelap */
+                headerTextColor: "#e0e0e0" /* Warna teks header untuk tema gelap */
+            }
+        }
+
+        const lightTheme = {
+            chatWindow: {
+                showTitle: true,
+                title: 'High Privacy AI Bot | Developed by Raihan',
+                titleAvatarSrc: 'https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/svg/google-messages.svg',
+                showAgentMessages: true,
+                welcomeMessage: 'Selamat datang di AI Bot Clevio',
+                errorMessage: 'Maaf, terjadi kesalahan. Silakan coba lagi.',
+                backgroundColor: "#f5f7fa", /* Warna terang */
+                backgroundImage: '',
+                height: 630,
+                width: '100%',
+                maxWidth: 1535,
+                fontSize: 16,
+                starterPromptFontSize: 15,
+                clearChatOnReload: false,
+                botMessage: {
+                    backgroundColor: "#ffffff",
+                    textColor: "#303235",
+                    showAvatar: true,
+                    avatarSrc: "https://img.icons8.com/emoji/48/000000/robot-emoji.png", /* Ikon robot */
+                    borderRadius: "15px",
+                    padding: "10px 15px",
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                },
+                userMessage: {
+                    backgroundColor: "#dddddd", /* Abu-abu terang */
+                    textColor: "#333333",
+                    showAvatar: true,
+                    avatarSrc: "https://raw.githubusercontent.com/zahidkhawaja/langchain-chat-nextjs/main/public/usericon.png",
+                    borderRadius: "15px",
+                    padding: "10px 15px",
+                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                },
+                textInput: {
+                    placeholder: 'Silahkan bertanya apapun',
+                    backgroundColor: '#ffffff',
+                    textColor: '#303235',
+                    sendButtonColor: '#555555', /* Sesuaikan dengan userMessage */
+                    sendButtonHoverColor: '#444444',
+                    autoFocus: true,
+                    sendMessageSound: true,
+                    receiveMessageSound: true,
+                    borderRadius: "25px",
+                    padding: "10px 20px",
+                    fontSize: "16px",
+                },
+                feedback: {
+                    color: '#ffffff',
+                    backgroundColor: '#555555', /* Sesuaikan dengan userMessage */
+                    borderRadius: "20px",
+                    padding: "8px 16px",
+                    fontSize: "14px",
+                },
+                headerBackgroundColor: "#f0f0f0", /* Warna latar belakang header untuk tema terang */
+                headerTextColor: "#333333" /* Warna teks header untuk tema terang */
+            }
+        }
+
+        // Fungsi untuk mendapatkan tema dari localStorage
+        function getStoredTheme() {
+            return localStorage.getItem('theme') || 'dark';
+        }
+
+        // Fungsi untuk menyimpan tema ke localStorage
+        function storeTheme(theme) {
+            localStorage.setItem('theme', theme);
+        }
+
+        // Mengatur tema awal berdasarkan localStorage
+        const currentStoredTheme = getStoredTheme();
+        document.body.classList.add(currentStoredTheme === 'light' ? 'light-theme' : 'dark-theme');
+
+        // Inisialisasi chatbot dengan tema yang sesuai
+        const initialTheme = currentStoredTheme === 'light' ? lightTheme : darkTheme;
+        Chatbot.initFull({
+            chatflowid: "0c909393-f2da-43be-8cf3-91e27889b84a",
+            apiHost: "http://localhost:3000",
+            theme: initialTheme
+        });
+
+        // Mengatur status checkbox berdasarkan tema awal
+        const toggleCheckbox = document.getElementById('theme-toggle-checkbox');
+        toggleCheckbox.checked = currentStoredTheme === 'light';
+
+        // Fungsi untuk mengganti tema
+        function toggleTheme() {
+            const body = document.body;
+            let newTheme;
+
+            if (toggleCheckbox.checked) {
+                body.classList.remove('dark-theme');
+                body.classList.add('light-theme');
+                newTheme = 'light';
+            } else {
+                body.classList.remove('light-theme');
+                body.classList.add('dark-theme');
+                newTheme = 'dark';
+            }
+
+            storeTheme(newTheme);
+            // Muat ulang halaman agar chatbot diinisialisasi ulang dengan tema baru
+            window.location.reload();
+        }
+
+        // Event Listener untuk slider toggle
+        toggleCheckbox.addEventListener('change', toggleTheme);
+    </script>
+</body>
+</html>
